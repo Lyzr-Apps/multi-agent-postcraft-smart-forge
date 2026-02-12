@@ -442,16 +442,29 @@ export default function Home() {
 
     try {
       const postText = editedPost || generatedContent.orchestratorData?.final_post || ''
+
+      if (!postText || postText.trim() === '') {
+        throw new Error('No post content available to generate visuals')
+      }
+
+      console.log('Calling Visual Intelligence Agent with post:', postText.substring(0, 100))
       const visualResult = await callAIAgent(postText, VISUAL_INTELLIGENCE_ID)
+      console.log('Visual result:', visualResult)
 
       if (!visualResult.success) {
-        throw new Error('Visual generation failed')
+        const errorMsg = visualResult.error || visualResult.response?.message || 'Visual generation failed'
+        throw new Error(errorMsg)
       }
 
       const visualData = visualResult.response?.result as VisualResult
+
+      // Images come from module_outputs at top level (not inside response)
       const images = Array.isArray(visualResult.module_outputs?.artifact_files)
         ? visualResult.module_outputs.artifact_files.map((f: any) => f?.file_url).filter(Boolean)
         : []
+
+      console.log('Visual data:', visualData)
+      console.log('Generated images:', images)
 
       setGeneratedContent(prev => prev ? {
         ...prev,
@@ -460,6 +473,7 @@ export default function Home() {
       } : null)
 
     } catch (err) {
+      console.error('Visual generation error:', err)
       setError(err instanceof Error ? err.message : 'Failed to generate visual')
     } finally {
       setIsGeneratingVisual(false)
@@ -864,6 +878,28 @@ export default function Home() {
         </div>
 
         {error && (
+          <Card className="border-destructive">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <FiAlertCircle className="text-destructive text-xl mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-destructive mb-1">Error</h3>
+                  <p className="text-sm text-muted-foreground">{error}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setError(null)}
+                    className="mt-3"
+                  >
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {error && (
           <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-lg flex items-center gap-2">
             <FiAlertCircle />
             <span className="text-sm">{error}</span>
@@ -922,25 +958,35 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {visualImages.length > 0 ? (
+                {visualData ? (
                   <div className="space-y-4">
-                    {visualImages.map((url, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={url}
-                          alt={`Generated visual ${index + 1}`}
-                          className="w-full rounded-lg border border-border"
-                        />
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          className="absolute top-2 right-2 gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => downloadImage(url, `linkedin-visual-${index + 1}.png`)}
-                        >
-                          <FiDownload /> Download
-                        </Button>
+                    {visualImages.length > 0 ? (
+                      <div className="space-y-4">
+                        {visualImages.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={url}
+                              alt={`Generated visual ${index + 1}`}
+                              className="w-full rounded-lg border border-border"
+                            />
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="absolute top-2 right-2 gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => downloadImage(url, `linkedin-visual-${index + 1}.png`)}
+                            >
+                              <FiDownload /> Download
+                            </Button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    ) : (
+                      <div className="text-center py-6 bg-muted/50 rounded-lg border-2 border-dashed">
+                        <FiImage className="mx-auto text-3xl mb-2 opacity-50" />
+                        <p className="text-sm text-muted-foreground">Visual concepts generated, but no images were created.</p>
+                        <p className="text-xs text-muted-foreground mt-1">Review the concepts and prompts below.</p>
+                      </div>
+                    )}
 
                     {visualData && (
                       <Tabs defaultValue="concept" className="w-full">
