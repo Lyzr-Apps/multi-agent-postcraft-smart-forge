@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import { callAIAgent } from '@/lib/aiAgent'
 import {
-  getScheduleStatus,
+  getSchedule,
   pauseSchedule,
   resumeSchedule,
-  getRunHistory,
+  getScheduleLogs,
   cronToHuman
 } from '@/lib/scheduler'
 import { Button } from '@/components/ui/button'
@@ -109,19 +109,37 @@ interface GeneratedContent {
   timestamp: string
 }
 
-interface ScheduleStatus {
-  is_active?: boolean
-  next_run?: string
-  cron_expression?: string
-  timezone?: string
+interface Schedule {
+  id: string
+  user_id: string
+  agent_id: string
+  message: string
+  cron_expression: string
+  timezone: string
+  max_retries: number
+  retry_delay: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  next_run_time: string | null
+  last_run_at: string | null
+  last_run_success: boolean | null
 }
 
-interface RunHistoryItem {
-  run_id: string
-  status: string
-  started_at: string
-  completed_at?: string
-  error_message?: string
+interface ExecutionLog {
+  id: string
+  schedule_id: string
+  agent_id: string
+  user_id: string
+  session_id: string
+  executed_at: string
+  attempt: number
+  max_attempts: number
+  success: boolean
+  payload_message: string
+  response_status: number
+  response_output: string
+  error_message: string | null
 }
 
 // Markdown renderer
@@ -234,8 +252,8 @@ export default function Home() {
   const [isEvaluating, setIsEvaluating] = useState(false)
 
   // Schedule state
-  const [scheduleStatus, setScheduleStatus] = useState<ScheduleStatus | null>(null)
-  const [runHistory, setRunHistory] = useState<RunHistoryItem[]>([])
+  const [scheduleStatus, setScheduleStatus] = useState<Schedule | null>(null)
+  const [runHistory, setRunHistory] = useState<ExecutionLog[]>([])
   const [isLoadingSchedule, setIsLoadingSchedule] = useState(false)
 
   // Load schedule status
@@ -330,8 +348,10 @@ export default function Home() {
   async function loadScheduleStatus() {
     try {
       setIsLoadingSchedule(true)
-      const status = await getScheduleStatus(SCHEDULE_ID)
-      setScheduleStatus(status)
+      const result = await getSchedule(SCHEDULE_ID)
+      if (result.success && result.schedule) {
+        setScheduleStatus(result.schedule)
+      }
     } catch (err) {
       console.error('Failed to load schedule status:', err)
     } finally {
@@ -341,8 +361,10 @@ export default function Home() {
 
   async function loadRunHistory() {
     try {
-      const history = await getRunHistory(SCHEDULE_ID, 10)
-      setRunHistory(Array.isArray(history) ? history : [])
+      const result = await getScheduleLogs(SCHEDULE_ID, { limit: 10 })
+      if (result.success) {
+        setRunHistory(Array.isArray(result.executions) ? result.executions : [])
+      }
     } catch (err) {
       console.error('Failed to load run history:', err)
     }
@@ -582,7 +604,7 @@ export default function Home() {
               <div>
                 <div className="text-sm text-muted-foreground">Next Run</div>
                 <div className="font-medium">
-                  {scheduleStatus?.next_run ? new Date(scheduleStatus.next_run).toLocaleString() : 'Not scheduled'}
+                  {scheduleStatus?.next_run_time ? new Date(scheduleStatus.next_run_time).toLocaleString() : 'Not scheduled'}
                 </div>
               </div>
               <div>
@@ -1198,8 +1220,8 @@ export default function Home() {
               <div className="space-y-2">
                 <Label>Next Run</Label>
                 <div className="font-medium">
-                  {scheduleStatus?.next_run
-                    ? new Date(scheduleStatus.next_run).toLocaleString()
+                  {scheduleStatus?.next_run_time
+                    ? new Date(scheduleStatus.next_run_time).toLocaleString()
                     : 'Not scheduled'}
                 </div>
               </div>
@@ -1251,19 +1273,17 @@ export default function Home() {
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <Badge variant={run.status === 'completed' ? 'default' : run.status === 'failed' ? 'destructive' : 'secondary'}>
-                                {run.status}
+                              <Badge variant={run.success ? 'default' : 'destructive'}>
+                                {run.success ? 'Success' : 'Failed'}
                               </Badge>
-                              <span className="text-xs text-muted-foreground">{run.run_id}</span>
+                              <span className="text-xs text-muted-foreground">{run.id}</span>
                             </div>
                             <div className="text-sm">
-                              Started: {new Date(run.started_at).toLocaleString()}
+                              Executed: {new Date(run.executed_at).toLocaleString()}
                             </div>
-                            {run.completed_at && (
-                              <div className="text-xs text-muted-foreground">
-                                Completed: {new Date(run.completed_at).toLocaleString()}
-                              </div>
-                            )}
+                            <div className="text-xs text-muted-foreground">
+                              Attempt {run.attempt} of {run.max_attempts}
+                            </div>
                             {run.error_message && (
                               <div className="text-xs text-destructive mt-1">
                                 Error: {run.error_message}
