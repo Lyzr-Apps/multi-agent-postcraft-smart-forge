@@ -1,0 +1,52 @@
+{
+  "agent_name": "Fact Validation Agent",
+  "agent_id": "698e1f0864e8fd01230bdb6d",
+  "description": "Cross-checks factual claims against research sources, flags unverifiable statistics, detects bias or exaggerated claims, ensures logical consistency; returns revision notes or approves draft",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "result": {
+      "validation_status": "string",
+      "factual_accuracy_score": "number",
+      "issues_found": [
+        {
+          "issue_type": "string",
+          "location": "string",
+          "problem": "string",
+          "suggested_fix": "string"
+        }
+      ],
+      "verified_claims": [
+        "string"
+      ],
+      "flagged_claims": [
+        "string"
+      ],
+      "source_quality_assessment": "string",
+      "validator_notes": "string"
+    }
+  },
+  "example_response": {
+    "result": {
+      "validation_status": "sample string",
+      "factual_accuracy_score": 0,
+      "issues_found": [
+        {
+          "issue_type": "sample string",
+          "location": "sample string",
+          "problem": "sample string",
+          "suggested_fix": "sample string"
+        }
+      ],
+      "verified_claims": [
+        "sample string"
+      ],
+      "flagged_claims": [
+        "sample string"
+      ],
+      "source_quality_assessment": "sample string",
+      "validator_notes": "sample string"
+    }
+  }
+}

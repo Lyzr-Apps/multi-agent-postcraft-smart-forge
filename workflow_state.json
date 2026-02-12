@@ -1,0 +1,118 @@
+{
+  "workflow_created": true,
+  "workflow_name": "LinkedIn Genius Content Engine",
+  "workflow_type": "manager_subagent_pattern",
+  "total_agents": 7,
+  "agents": {
+    "manager": {
+      "agent_id": "698e1f65a96cf8dd37d6a841",
+      "name": "Content Orchestrator",
+      "type": "manager",
+      "provider": "OpenAI",
+      "model": "gpt-4.1",
+      "has_sub_agents": true,
+      "sub_agent_count": 4,
+      "sub_agent_ids": [
+        "698e1ee17d01c601c90dc869",
+        "698e1ef30f1d9d4090b51a0c",
+        "698e1f0864e8fd01230bdb6d",
+        "698e1f1c83ad001445fb4fab"
+      ]
+    },
+    "sub_agents": [
+      {
+        "agent_id": "698e1ee17d01c601c90dc869",
+        "name": "Deep Research Agent",
+        "type": "sub_agent",
+        "provider": "Perplexity",
+        "model": "sonar-reasoning-pro",
+        "capabilities": ["web_search", "real_time_data"]
+      },
+      {
+        "agent_id": "698e1ef30f1d9d4090b51a0c",
+        "name": "LinkedIn Writer Agent",
+        "type": "sub_agent",
+        "provider": "OpenAI",
+        "model": "gpt-4.1",
+        "capabilities": ["content_writing", "algorithm_optimization"]
+      },
+      {
+        "agent_id": "698e1f0864e8fd01230bdb6d",
+        "name": "Fact Validation Agent",
+        "type": "sub_agent",
+        "provider": "Anthropic",
+        "model": "claude-sonnet-4-5",
+        "capabilities": ["fact_checking", "source_validation"]
+      },
+      {
+        "agent_id": "698e1f1c83ad001445fb4fab",
+        "name": "Humanization Agent",
+        "type": "sub_agent",
+        "provider": "Anthropic",
+        "model": "claude-sonnet-4-5",
+        "capabilities": ["content_humanization", "ai_pattern_removal"]
+      }
+    ],
+    "independent_agents": [
+      {
+        "agent_id": "698e1f31a96cf8dd37d6a840",
+        "name": "Visual Intelligence Agent",
+        "type": "independent",
+        "provider": "OpenAI",
+        "model": "gpt-4.1",
+        "capabilities": ["image_generation", "visual_concepts"],
+        "image_output_enabled": true,
+        "image_model": "gemini/gemini-3-pro-image-preview"
+      },
+      {
+        "agent_id": "698e1f49d53462d090523311",
+        "name": "LLM Judge Agent",
+        "type": "independent",
+        "provider": "Anthropic",
+        "model": "claude-sonnet-4-5",
+        "capabilities": ["content_evaluation", "quality_scoring"]
+      }
+    ]
+  },
+  "schedules": [
+    {
+      "schedule_id": "698e1f6bebe6fd87d1dcc1d7",
+      "agent_id": "698e1f65a96cf8dd37d6a841",
+      "agent_name": "Content Orchestrator",
+      "cron_expression": "0 9 * * *",
+      "timezone": "America/New_York",
+      "frequency": "Daily at 9:00 AM EST",
+      "next_run": "2026-02-13T09:00:00-05:00",
+      "is_active": true,
+      "message": "Generate trending LinkedIn content based on saved topics and recent industry developments"
+    }
+  ],
+  "response_schemas": {
+    "content_orchestrator": "response_schemas/content_orchestrator_response.json",
+    "deep_research_agent": "response_schemas/deep_research_agent_response.json",
+    "linkedin_writer_agent": "response_schemas/linkedin_writer_agent_response.json",
+    "fact_validation_agent": "response_schemas/fact_validation_agent_response.json",
+    "humanization_agent": "response_schemas/humanization_agent_response.json",
+    "visual_intelligence_agent": "response_schemas/visual_intelligence_agent_response.json",
+    "llm_judge_agent": "response_schemas/llm_judge_agent_response.json"
+  },
+  "special_features": {
+    "image_output": {
+      "enabled": true,
+      "agent": "Visual Intelligence Agent",
+      "model": "gemini/gemini-3-pro-image-preview"
+    },
+    "automated_scheduling": {
+      "enabled": true,
+      "schedule_count": 1,
+      "primary_schedule": "Daily content generation at 9:00 AM EST"
+    },
+    "manager_pattern": {
+      "enabled": true,
+      "manager_agent": "Content Orchestrator",
+      "coordination_workflow": "research -> write -> validate -> humanize"
+    }
+  },
+  "workflow_status": "complete",
+  "created_at": "2026-02-12T18:43:55Z"
+}

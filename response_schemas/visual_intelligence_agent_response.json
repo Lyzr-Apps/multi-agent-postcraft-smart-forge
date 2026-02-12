@@ -1,0 +1,54 @@
+{
+  "agent_name": "Visual Intelligence Agent",
+  "agent_id": "698e1f31a96cf8dd37d6a840",
+  "description": "Analyzes post theme and generates visual concepts including single images, carousel ideas, infographic concepts, and DALL-E/Stable Diffusion ready prompts",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "result": {
+      "single_image_concept": "string",
+      "carousel_concepts": [
+        {
+          "slide_number": "number",
+          "slide_content": "string",
+          "visual_description": "string"
+        }
+      ],
+      "infographic_concept": "string",
+      "dall_e_prompt": "string",
+      "color_palette": [
+        "string"
+      ],
+      "visual_style": "string",
+      "engagement_rationale": "string"
+    }
+  },
+  "example_response": {
+    "result": {
+      "single_image_concept": "sample string",
+      "carousel_concepts": [
+        {
+          "slide_number": 0,
+          "slide_content": "sample string",
+          "visual_description": "sample string"
+        }
+      ],
+      "infographic_concept": "sample string",
+      "dall_e_prompt": "sample string",
+      "color_palette": [
+        "sample string"
+      ],
+      "visual_style": "sample string",
+      "engagement_rationale": "sample string"
+    }
+  },
+  "has_module_outputs": true,
+  "module_outputs_example": {
+    "artifact_files": [
+      {
+        "file_url": "https://example.com/image.png"
+      }
+    ]
+  }
+}

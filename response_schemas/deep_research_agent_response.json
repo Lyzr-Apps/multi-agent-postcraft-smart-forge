@@ -1,0 +1,64 @@
+{
+  "agent_name": "Deep Research Agent",
+  "agent_id": "698e1ee17d01c601c90dc869",
+  "description": "Extracts core themes, gathers latest trends, statistics, industry signals, contrarian viewpoints; analyzes LinkedIn URLs for engagement patterns; provides structured research brief with source references",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "result": {
+      "core_themes": [
+        "string"
+      ],
+      "key_statistics": [
+        {
+          "stat": "string",
+          "source": "string"
+        }
+      ],
+      "industry_trends": [
+        "string"
+      ],
+      "contrarian_angles": [
+        "string"
+      ],
+      "engagement_insights": {
+        "hook_type": "string",
+        "content_structure": "string",
+        "cta_type": "string"
+      },
+      "source_references": [
+        "string"
+      ],
+      "research_summary": "string"
+    }
+  },
+  "example_response": {
+    "result": {
+      "core_themes": [
+        "sample string"
+      ],
+      "key_statistics": [
+        {
+          "stat": "sample string",
+          "source": "sample string"
+        }
+      ],
+      "industry_trends": [
+        "sample string"
+      ],
+      "contrarian_angles": [
+        "sample string"
+      ],
+      "engagement_insights": {
+        "hook_type": "sample string",
+        "content_structure": "sample string",
+        "cta_type": "sample string"
+      },
+      "source_references": [
+        "sample string"
+      ],
+      "research_summary": "sample string"
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "agent_name": "LinkedIn Writer Agent",
+  "agent_id": "698e1ef30f1d9d4090b51a0c",
+  "description": "Converts research into algorithm-optimized LinkedIn post following hook principles, white space, conversational tone, emotional-analytical mix, value density, and clean CTA",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "result": {
+      "post_text": "string",
+      "hook_used": "string",
+      "content_structure": "string",
+      "hashtags": [
+        "string"
+      ],
+      "character_count": "number",
+      "engagement_elements": [
+        "string"
+      ],
+      "writer_notes": "string"
+    }
+  },
+  "example_response": {
+    "result": {
+      "post_text": "sample string",
+      "hook_used": "sample string",
+      "content_structure": "sample string",
+      "hashtags": [
+        "sample string"
+      ],
+      "character_count": 0,
+      "engagement_elements": [
+        "sample string"
+      ],
+      "writer_notes": "sample string"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "agent_name": "Content Orchestrator",
+  "agent_id": "698e1f65a96cf8dd37d6a841",
+  "description": "Parses user input, identifies input type, coordinates research-write-validate-humanize workflow, maintains structured state between agents, aggregates final content package",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "result": {
+      "input_type": "string",
+      "workflow_summary": "string",
+      "research_insights": "string",
+      "final_post": "string",
+      "validation_status": "string",
+      "humanization_improvements": "string",
+      "content_package": {
+        "post_text": "string",
+        "hashtags": [
+          "string"
+        ],
+        "engagement_elements": [
+          "string"
+        ],
+        "source_references": [
+          "string"
+        ]
+      },
+      "orchestrator_notes": "string"
+    }
+  },
+  "example_response": {
+    "result": {
+      "input_type": "sample string",
+      "workflow_summary": "sample string",
+      "research_insights": "sample string",
+      "final_post": "sample string",
+      "validation_status": "sample string",
+      "humanization_improvements": "sample string",
+      "content_package": {
+        "post_text": "sample string",
+        "hashtags": [
+          "sample string"
+        ],
+        "engagement_elements": [
+          "sample string"
+        ],
+        "source_references": [
+          "sample string"
+        ]
+      },
+      "orchestrator_notes": "sample string"
+    }
+  }
+}
