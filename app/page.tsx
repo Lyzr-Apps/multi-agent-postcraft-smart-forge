@@ -256,6 +256,28 @@ export default function Home() {
   const [runHistory, setRunHistory] = useState<ExecutionLog[]>([])
   const [isLoadingSchedule, setIsLoadingSchedule] = useState(false)
 
+  // Load content history from localStorage on mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('linkedin_content_history')
+    if (savedHistory) {
+      try {
+        const parsed = JSON.parse(savedHistory)
+        if (Array.isArray(parsed)) {
+          setContentHistory(parsed)
+        }
+      } catch (err) {
+        console.error('Failed to load content history:', err)
+      }
+    }
+  }, [])
+
+  // Save content history to localStorage whenever it changes
+  useEffect(() => {
+    if (contentHistory.length > 0 && !useSampleData) {
+      localStorage.setItem('linkedin_content_history', JSON.stringify(contentHistory))
+    }
+  }, [contentHistory, useSampleData])
+
   // Load schedule status
   useEffect(() => {
     loadScheduleStatus()
@@ -474,11 +496,26 @@ export default function Home() {
       console.log('[Visual Generation] Extracted image URLs:', images)
       console.log('[Visual Generation] Total images found:', images.length)
 
-      setGeneratedContent(prev => prev ? {
-        ...prev,
+      const updatedContent = generatedContent ? {
+        ...generatedContent,
         visualData,
         visualImages: images
-      } : null)
+      } : null
+
+      setGeneratedContent(updatedContent)
+
+      // Update the content in history with visual data
+      if (updatedContent) {
+        setContentHistory(prev => {
+          const index = prev.findIndex(item => item.timestamp === updatedContent.timestamp)
+          if (index !== -1) {
+            const newHistory = [...prev]
+            newHistory[index] = updatedContent
+            return newHistory
+          }
+          return prev
+        })
+      }
 
     } catch (err) {
       console.error('Visual generation error:', err)
@@ -506,10 +543,25 @@ export default function Home() {
 
       const judgeData = judgeResult.response?.result as JudgeResult
 
-      setGeneratedContent(prev => prev ? {
-        ...prev,
+      const updatedContent = generatedContent ? {
+        ...generatedContent,
         judgeData
-      } : null)
+      } : null
+
+      setGeneratedContent(updatedContent)
+
+      // Update the content in history with judge data
+      if (updatedContent) {
+        setContentHistory(prev => {
+          const index = prev.findIndex(item => item.timestamp === updatedContent.timestamp)
+          if (index !== -1) {
+            const newHistory = [...prev]
+            newHistory[index] = updatedContent
+            return newHistory
+          }
+          return prev
+        })
+      }
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to evaluate content')
@@ -653,8 +705,28 @@ export default function Home() {
         {/* Content History */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Content</CardTitle>
-            <CardDescription>Your generated LinkedIn posts</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Content</CardTitle>
+                <CardDescription>Your generated LinkedIn posts</CardDescription>
+              </div>
+              {contentHistory.length > 0 && !useSampleData && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (confirm('Are you sure you want to clear all content history? This cannot be undone.')) {
+                      setContentHistory([])
+                      localStorage.removeItem('linkedin_content_history')
+                    }
+                  }}
+                  className="gap-2"
+                >
+                  <FiRefreshCw className="text-xs" />
+                  Clear History
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {contentHistory.length === 0 ? (
@@ -667,9 +739,28 @@ export default function Home() {
               <ScrollArea className="h-[400px]">
                 <div className="space-y-4">
                   {contentHistory.map((item, index) => (
-                    <Card key={index} className="hover:shadow-md transition-shadow">
+                    <Card
+                      key={index}
+                      className="hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => {
+                        setGeneratedContent(item)
+                        setEditedPost(item.orchestratorData?.final_post ?? item.orchestratorData?.content_package?.post_text ?? '')
+                        setScreen('output')
+                      }}
+                    >
                       <CardContent className="pt-6">
-                        <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          {/* Thumbnail if visual exists */}
+                          {item.visualImages && item.visualImages.length > 0 && (
+                            <div className="flex-shrink-0">
+                              <img
+                                src={item.visualImages[0]}
+                                alt="Generated visual"
+                                className="w-20 h-20 object-cover rounded border"
+                              />
+                            </div>
+                          )}
+
                           <div className="flex-1 min-w-0">
                             <p className="text-sm line-clamp-3 mb-2">
                               {item.orchestratorData?.final_post ?? item.orchestratorData?.content_package?.post_text ?? 'No content'}
@@ -681,8 +772,15 @@ export default function Home() {
                                     {tag}
                                   </Badge>
                                 ))}
+                              {item.visualImages && item.visualImages.length > 0 && (
+                                <Badge variant="outline" className="text-xs gap-1">
+                                  <FiImage className="text-xs" />
+                                  {item.visualImages.length} {item.visualImages.length === 1 ? 'image' : 'images'}
+                                </Badge>
+                              )}
                             </div>
                           </div>
+
                           <div className="flex flex-col items-end gap-2">
                             {item.judgeData?.overall_average !== undefined && (
                               <Badge variant={item.judgeData.overall_average >= 8 ? 'default' : 'secondary'}>
