@@ -447,12 +447,16 @@ export default function Home() {
         throw new Error('No post content available to generate visuals')
       }
 
-      console.log('Calling Visual Intelligence Agent with post:', postText.substring(0, 100))
+      console.log('[Visual Generation] Starting with post text:', postText.substring(0, 100) + '...')
       const visualResult = await callAIAgent(postText, VISUAL_INTELLIGENCE_ID)
-      console.log('Visual result:', visualResult)
+
+      console.log('[Visual Generation] Full API response:', JSON.stringify(visualResult, null, 2))
+      console.log('[Visual Generation] Success status:', visualResult.success)
+      console.log('[Visual Generation] Module outputs:', visualResult.module_outputs)
 
       if (!visualResult.success) {
         const errorMsg = visualResult.error || visualResult.response?.message || 'Visual generation failed'
+        console.error('[Visual Generation] Error:', errorMsg)
         throw new Error(errorMsg)
       }
 
@@ -460,11 +464,15 @@ export default function Home() {
 
       // Images come from module_outputs at top level (not inside response)
       const images = Array.isArray(visualResult.module_outputs?.artifact_files)
-        ? visualResult.module_outputs.artifact_files.map((f: any) => f?.file_url).filter(Boolean)
+        ? visualResult.module_outputs.artifact_files.map((f: any) => {
+            console.log('[Visual Generation] Processing artifact file:', f)
+            return f?.file_url
+          }).filter(Boolean)
         : []
 
-      console.log('Visual data:', visualData)
-      console.log('Generated images:', images)
+      console.log('[Visual Generation] Parsed visual data:', visualData)
+      console.log('[Visual Generation] Extracted image URLs:', images)
+      console.log('[Visual Generation] Total images found:', images.length)
 
       setGeneratedContent(prev => prev ? {
         ...prev,
@@ -1048,7 +1056,8 @@ export default function Home() {
                 ) : (
                   <div className="text-center py-8">
                     <FiImage className="mx-auto text-4xl mb-3 opacity-50 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground mb-4">No visuals generated yet</p>
+                    <p className="text-sm text-muted-foreground mb-2">No visuals generated yet</p>
+                    <p className="text-xs text-muted-foreground mb-4">AI will create professional images, carousel concepts, and infographic ideas</p>
                     <Button onClick={handleGenerateVisual} disabled={isGeneratingVisual} className="gap-2">
                       {isGeneratingVisual ? (
                         <>
